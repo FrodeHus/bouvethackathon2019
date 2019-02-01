@@ -28,7 +28,7 @@ class RegisterBagComponent extends Component {
 
         const validationResponses = ['Godkjent', 'Ikke godkjent', 'Brukt'];
 
-        fetch('http://bouvet-panther-api.azurewebsites.net/api/QR/Activate', {
+        fetch('/api/QR/Activate', {
             method: "POST",
                 body: JSON.stringify({a: 1, b: 2})
         })
