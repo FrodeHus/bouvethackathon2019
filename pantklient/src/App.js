@@ -7,20 +7,17 @@ import Routes from './containers/navigation';
 class App extends Component {
 
 	renderHeader = () => (
-		<div>
-      <nav>
+		<div id="nav-container">
+      		<nav>
 				<ul>
 					<li>
 						<Link to="/"> Home </Link>
 					</li>
 					<li>
-						<Link to="/scan"> Scanner </Link>
-					</li>
-					<li>
 						<Link to="/about"> About </Link>
 					</li>
 				</ul>
-      </nav>
+      		</nav>
 		</div>
 	);
 

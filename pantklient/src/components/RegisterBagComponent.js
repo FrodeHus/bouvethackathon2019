@@ -58,8 +58,25 @@ class RegisterBagComponent extends Component {
         this.setState({uid: id});
     }
 
+    verifyBagId() {
+        fetch('/api/QR/Activate?qrCode=' + this.state.bagId + '&userid=' + this.state.uid, {
+            method: "POST",
+            mode: "no-cors"
+        })
+            .then(response => this.handleRespone(response))
+            .catch(error => console.log(error)) //TODO handle error riktig.
+    }
+
+    handleRespone(response){
+        //TODO gjør noe med responsen her!
+        // vise godkjent / ikke godkjent, bla bla
+    }
 
     render(){
+
+        this.verifyBagId();
+
+
         return(
             <div>
                 <h1>REGISTER BAG</h1>
