@@ -19,13 +19,14 @@ namespace PantAPI.Models
         public DateTime CreatedDate { get; set; }
         public DateTime? ActivatedDate { get; set; }
         public DateTime? ReceiveDate { get; set; }
+         
+        public double? Value { get; set; } = 0;
 
-        public Decimal Value { get; set; } = 0;
-
-        public Decimal? Weight { get; set; }
+        public  double? Weight { get; set; }
 
         public BagStatus Status { get; set; }
         public string ReceiveLocation { get; internal set; }
+        public string Message { get; internal set; }
     }
 
     public enum BagStatus

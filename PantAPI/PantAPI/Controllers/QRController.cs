@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PantAPI.Models;
 using PantAPI.Repositories;
 using System;
@@ -10,11 +11,15 @@ namespace PantAPI.Controllers
     [ApiController]
     public class QRController : ControllerBase
     {
-        private BagRepository bagRepository;
+        private readonly BagRepository bagRepository;
+        private readonly AuthService authService;
+        private readonly UserRepository userRepository;
 
-        public QRController(BagRepository bagRepository)
+        public QRController(BagRepository bagRepository, AuthService authService, UserRepository userRepository)
         {
             this.bagRepository = bagRepository;
+            this.authService = authService;
+            this.userRepository = userRepository;
         }
 
         [HttpPost]
@@ -22,42 +27,54 @@ namespace PantAPI.Controllers
         [ProducesResponseType(typeof(ActivateResultModel), 200)]
         public async Task<ActionResult> Activate([FromBody] ActivateModel activateModel)
         {
+            if (string.IsNullOrEmpty(activateModel.UserId))
+            {
+                activateModel.UserId = Guid.NewGuid().ToString();
+                await authService.AnonymousUser(activateModel.UserId);
+            }
+
+            var user = await authService.EnsureAndGetUserAsync();
+
+            if(user == null && !string.IsNullOrEmpty(activateModel.UserId))
+            {
+                user = await userRepository.RegisterUser(activateModel.UserId, null, null, null);
+            }
+
             var bag = await bagRepository.GetUnusedAsync(activateModel.BagId);
             if (bag == null)
             {
                 return Ok(new ActivateResultModel
                 {
-                    Status = ActivativateStatus.Unknown
+                    Status = ActivativateStatus.Unknown,
+                    UserId = activateModel.UserId
                 });
-            }
-
-            if (string.IsNullOrEmpty(activateModel.UserId))
-            {
-                activateModel.UserId = Guid.NewGuid().ToString();
             }
 
             await bagRepository.DeleteAsync(bag);
 
-            bag.PartitionKey = activateModel.UserId;
-            await bagRepository.AddOrUpdateAsync(bag);
+            var newBag = new Bag(activateModel.UserId, bag.BagId)
+            {
+                CreatedDate = bag.CreatedDate,
+                Status = BagStatus.Active
+            };
+            
+            await bagRepository.AddOrUpdateAsync(newBag);
 
             return Ok(new ActivateResultModel
             {
                 Status = ActivativateStatus.OK,
-                UserId = bag.UserId,
-                BagId = bag.BagId
+                UserId = newBag.UserId,
+                BagId = newBag.BagId
             });
         }
-
-
-
-
 
         [HttpGet]
         [Route("Generate")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<ActionResult> Generate()
         {
+            //await authService.EnsureToken();
+
             var bagId = Guid.NewGuid().ToString();
             var baseUrl = "https://bouvet-panther.azurewebsites.net/#/registerBag/";
             var qrCode = baseUrl + bagId;

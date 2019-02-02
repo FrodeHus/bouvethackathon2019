@@ -7,6 +7,7 @@ import RegisterBagComponent from '../components/RegisterBagComponent/RegisterBag
 import QrScannerComponent from '../components/QrScannerComponent/QrScannerComponent';
 import Login from '../components/Login/Login';
 import RegisterUser from '../components/RegisterUser/RegisterUser';
+import Home from '../components/Home/Home';
 
 export default () => (
   <Switch>
@@ -28,8 +29,12 @@ export default () => (
       component={RegisterBagComponent}
     />
     <Route
-      path='/register'
+      path='/registerUser'
       component={RegisterUser}
+    />
+    <Route
+      path='/home'
+      component={Home}
     />
   </Switch>
 );

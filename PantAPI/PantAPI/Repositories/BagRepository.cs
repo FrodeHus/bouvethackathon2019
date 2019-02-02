@@ -1,29 +1,20 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using PantAPI.Models;
+using System.Threading.Tasks;
 
 namespace PantAPI.Repositories
 {
-    public class BagRepository
+    public class BagRepository : BaseRepository<Bag>
     {
         const string TABLE_NAME = "bags";
         const string NOT_ASSIGNED_PARTITION_KEY = "NA";
-        private readonly string connectionString;
 
-        public BagRepository(string connectionString)
+        public BagRepository(string connectionString) : base(TABLE_NAME, connectionString)
         {
-            this.connectionString = connectionString;
-        }
-
-        public async Task<Bag> AddOrUpdateAsync(Bag bag)
-        {
-            var insertOperation = TableOperation.InsertOrReplace(bag);
-            var table = await GetTableAsync();
-            await table.ExecuteAsync(insertOperation);
-
-            return bag;
         }
 
         public async Task<Bag> AddNewAsync(string bagId)
@@ -41,45 +32,45 @@ namespace PantAPI.Repositories
             return await GetAsync(NOT_ASSIGNED_PARTITION_KEY, bagId);
         }
 
+
         public async Task<List<Bag>> GetBagsForUserAsync(string userId)
         {
-            //TODO: FixDatabaseQuery;
-            return new List<Bag>();
-        }
-
-        public async Task<Bag> GetAsync(string userId, string bagId)
-        {
-            var retrieveOperation = TableOperation.Retrieve<Bag>(userId, bagId);
+            var query = new TableQuery<Bag>().Where(TableQuery.GenerateFilterCondition(nameof(Bag.PartitionKey), QueryComparisons.Equal, userId));
             var table = await GetTableAsync();
-            var result = await table.ExecuteAsync(retrieveOperation);
 
-            return (Bag)result.Result;
+            List<Bag> results = new List<Bag>();
+            TableContinuationToken continuationToken = null;
+            do
+            {
+                TableQuerySegment<Bag> queryResults =
+                    await table.ExecuteQuerySegmentedAsync(query, continuationToken);
+
+                continuationToken = queryResults.ContinuationToken;
+                results.AddRange(queryResults.Results);
+
+            } while (continuationToken != null);
+
+            return results;
         }
 
-        public async Task DeleteAsync(Bag bag)
+        public async Task<Bag> GetBag(string bagId)
         {
-            var deleteOperation = TableOperation.Delete(bag);
+            var query = new TableQuery<Bag>().Where(TableQuery.GenerateFilterCondition(nameof(Bag.RowKey), QueryComparisons.Equal, bagId));
             var table = await GetTableAsync();
-            await table.ExecuteAsync(deleteOperation);
-        }
 
-        private async Task<CloudTable> GetTableAsync()
-        {
-            var client = GetCloudTableClient();
-            var table = client.GetTableReference(TABLE_NAME);
-            await table.CreateIfNotExistsAsync();
-            return table;
-        }
+            List<Bag> results = new List<Bag>();
+            TableContinuationToken continuationToken = null;
+            do
+            {
+                TableQuerySegment<Bag> queryResults =
+                    await table.ExecuteQuerySegmentedAsync(query, continuationToken);
 
-        private CloudTableClient GetCloudTableClient()
-        {
-            var storageAccount = GetStorageAccount();
-            return storageAccount.CreateCloudTableClient();
-        }
+                continuationToken = queryResults.ContinuationToken;
+                results.AddRange(queryResults.Results);
 
-        private CloudStorageAccount GetStorageAccount()
-        {
-            return CloudStorageAccount.Parse(connectionString);
+            } while (continuationToken != null);
+
+            return results.FirstOrDefault();
         }
     }
 }

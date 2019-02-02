@@ -1,9 +1,22 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto:300);
+
+body, html{
+  height: 100%;
+}
+
+body{
+    background: url('gfx/background.svg') no-repeat;
+    font-family: "Roboto", sans-serif;
+    background-size: 100% auto;
+}
+
 .App {
   text-align: center;
 }
 .App-logo {
-  animation: App-logo-spin infinite 2s linear; 
-  width: 5%; 
+  animation: App-logo-spin infinite 2s linear;
+  margin: auto; 
+  width: 30%; 
   height: auto;
 }
 
@@ -13,11 +26,19 @@
 .red{
   color: #ff1616
 }
+
+
+.icon-container{
+  background: white;
+  border-radius: 100px;
+  width: 200px;
+  height: 200px;
+  margin: 55px auto 0 auto;
+}
 .huge-icon{
-
-  width: 50%; 
   height: auto;
-
+  width: 75%;
+  margin-top: 25px;
 }
 .App-header {
   background-color: #282c34;
@@ -48,6 +69,9 @@ nav{
 
 nav a{
   color: #fff;
+    font-size: 30px;
+    margin: 8px 0;
+    display: inline-block;
 }
 
 nav ul{
@@ -58,6 +82,8 @@ nav ul{
   justify-content: center;
   align-items: stretch;
   align-content: stretch;
+    padding: 0;
+    margin: 0;
 }
 
 nav li{

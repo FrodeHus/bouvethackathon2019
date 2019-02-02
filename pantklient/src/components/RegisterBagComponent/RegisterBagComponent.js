@@ -16,56 +16,42 @@ class RegisterBagComponent extends Component {
 
     componentDidMount() {
         const  { id } = this.props.match.params;
-        this.setState({ bagId : id });
-        this.checkOrGetUserId();
+        this.setState({ bagId : id }, () =>{
+            this.verifyBagId();
+        });
+        //this.checkOrGetUserId();
     }
 
-    checkOrGetUserId() {
-        let id = localStorage.getItem('uid');
-
-        if(id == null){
-            fetch('https://bouvet-panther-api.azurewebsites.net/api/User/Register', {
-                method: "GET",
-            }).then(response => response.json())
-            .then(response => {
-                localStorage.setItem('uid', response.uid)
-                this.setState(
-                    {uid: response.uid},
-                    () => this.verifyBagId()
-                )
-            })
-            .catch(error => console.log(error)) //TODO handle error riktig.
-        } else {
-            this.setState(
-                {uid: id},
-                () => this.verifyBagId()
-            )
-        }
-    }
 
     verifyBagId() {
         const myPost = {
             BagId: this.state.bagId,
-            UserId: this.state.uid
+            UserId: this.state.uid   
         }
-          
         const options = {
             method: 'POST',
             mode: 'cors',
             body: JSON.stringify(myPost),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization' : localStorage.getItem('token')
             },
         };
 
         fetch('https://bouvet-panther-api.azurewebsites.net/api/QR/Activate', options)
-            .then(res => res.json())
+            .then(res => {
+                console.log(res)
+                localStorage.setItem('token', res.headers.get('x-plukk-token')); //TODO doesnt work
+                return res.json();
+            })
             .then(res => this.handleRespone(res))
             .catch(error => console.log(error));
     }
 
     handleRespone(response){
+        localStorage.setItem('uid', response.userId);
         this.setState({
+            uid: response.userId,
             validationResponse: response.status
         });
     }
@@ -73,20 +59,16 @@ class RegisterBagComponent extends Component {
     render(){
 
         if(this.state.uid == null){
-            return (<div>
-                <FaRecycle/>
-            </div>);
+            return <FaRecycle className="App-logo"/>
         }
 
         return(
             <div className="App">
-                <h1>REGISTER BAG</h1>
-                <p>Din pose har id: {this.state.bagId}</p>
-
-                {this.state.validationResponse ? 
-                <VerifiedQrComponent
-                   validationResponse= {this.state.validationResponse}/> : 
-                <FaRecycle className="App-logo"/>}
+                {this.state.validationResponse ?
+                    <VerifiedQrComponent
+                        validationResponse= {this.state.validationResponse}/>
+                :
+                    <FaRecycle className="App-logo"/>}
             </div>
         )
     }
