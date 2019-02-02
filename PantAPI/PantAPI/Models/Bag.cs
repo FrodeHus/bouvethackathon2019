@@ -1,18 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.WindowsAzure.Storage.Table;
+using System;
 
 namespace PantAPI.Models
 {
-    public class Bag
+    public class Bag : TableEntity
     {
-        public string BagId { get; set; }
-        public string UserId { get; set; }
-        public DateTime BagCreatedDate { get; set; }
+        public Bag(string userId, string bagId) : base(userId, bagId)
+        {
+            CreatedDate = DateTime.UtcNow;
+        }
+
+        public Bag()
+        {
+        }
+
+        public string BagId => RowKey;
+        public string UserId => PartitionKey;
+        public DateTime CreatedDate { get; set; }
         public DateTime? ActivatedDate { get; set; }
+        public DateTime? ReceiveDate { get; set; }
+
+        public Decimal Value { get; set; } = 0;
+
+        public Decimal? Weight { get; set; }
 
         public BagStatus Status { get; set; }
+        public string ReceiveLocation { get; internal set; }
     }
 
     public enum BagStatus

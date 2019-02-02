@@ -7,18 +7,16 @@ using System.Threading.Tasks;
 
 namespace PantAPI.Models
 {
-    public class ActivateResultModel
+    public class ReceiveResultModel
     {
         [JsonConverter(typeof(StringEnumConverter))]
-        public ActivativateStatus Status { get; set; }
-        public string UserId { get; internal set; }
+        public ReceiveStatus Status { get; set; }
         public string BagId { get; internal set; }
     }
 
-    public enum ActivativateStatus
+    public enum ReceiveStatus
     {
-        Unknown =0,
         OK = 1,
-        InUse = 2
+        UNKNOWN = 0
     }
 }
