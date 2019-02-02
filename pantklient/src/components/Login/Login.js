@@ -31,7 +31,7 @@ class Login extends Component {
             },
         };
 
-        fetch('https://bouvet-panther-api.azurewebsites.net/api/user/login', options)
+        fetch('/api/user/login', options)
             .then(res => res.json())
             .then(res => this.handleLoginResponse(res))
             .catch(error => console.log(error));

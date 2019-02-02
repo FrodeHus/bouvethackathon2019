@@ -46,7 +46,7 @@ class ProfileComponent extends Component {
             },
         };
 
-        fetch('https://bouvet-panther-api.azurewebsites.net/api/user/update', options)
+        fetch('/api/user/update', options)
             .then(res => res.json())
             .then(res => this.handleUpdateResponse(res))
             .catch(error => console.log(error));

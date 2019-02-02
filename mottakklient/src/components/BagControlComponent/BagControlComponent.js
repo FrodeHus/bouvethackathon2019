@@ -34,7 +34,7 @@ class BagControlComponent extends Component {
             },
         };
 
-        fetch('https://bouvet-panther-api.azurewebsites.net/api/Receive/Receive', options)
+        fetch('/api/Receive/Receive', options)
             .then(res => res.json())
             .then(res => this.handleRespone(res))
             .catch(error => console.log(error));

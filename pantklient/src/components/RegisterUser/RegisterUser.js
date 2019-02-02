@@ -32,7 +32,7 @@ class RegisterComponent extends Component {
             },
         };
 
-        fetch('https://bouvet-panther-api.azurewebsites.net/api/user/register', options)
+        fetch('/api/user/register', options)
             .then(res => res.json())
             .then(res => this.handleRegisterResponse(res))
             .catch(error => console.log(error));

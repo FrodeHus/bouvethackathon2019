@@ -26,7 +26,7 @@ class HomeComponent extends Component {
                     'Authorization' : localStorage.getItem('token')
                 },
             };
-        fetch(`https://bouvet-panther-api.azurewebsites.net/api/user/balance?userId=${this.state.uid}`, options)
+        fetch(`/api/user/balance?userId=${this.state.uid}`, options)
             .then(response => response.json())
             .then(response => {
                 this.setState({balance: response.balance, details: response.details}, this.calculateTotalPickedWeight)
